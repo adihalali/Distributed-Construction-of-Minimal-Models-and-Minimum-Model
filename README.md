@@ -8,7 +8,7 @@ Yet, it turns out that this task is formidable even when very simple theories ar
 
 
 ## Project Diary
-To see the project diary please visit the [wiki](/Wiki) section.
+To see the project diary please visit the [wiki](../master/Wiki) section.
 
 **To see the project board, follow this [link](https://github.com/adihalali/Distributed-Construction-of-Minimal-Models-and-Minimum-Model/projects)**
 
