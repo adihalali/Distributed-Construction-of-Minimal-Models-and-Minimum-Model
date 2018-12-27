@@ -10,7 +10,7 @@ Yet, it turns out that this task is formidable even when very simple theories ar
 ## Project Diary
 To see the project diary please visit the [wiki](../../wiki) section.
 
-**To see the project board, follow this [link](https://github.com/adihalali/Distributed-Construction-of-Minimal-Models-and-Minimum-Model/projects)**
+**To see the project board, follow this [link](../../projects)**
 
 ## Disclaimer
 This project is developed as part of the requirements for a final project at the software engineering department - [Azrieli College of Engineering](http://www.jce.ac.il/), Jerusalem, Israel.
