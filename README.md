@@ -16,4 +16,4 @@ To see the project diary please visit the [wiki](../wiki) section.
 This project is developed as part of the requirements for a final project at the software engineering department - [Azrieli College of Engineering](http://www.jce.ac.il/), Jerusalem, Israel.
 
 ## License
-[MIT License](../blob/master/LICENSE) © Adi Halali
+[MIT License](../master/LICENSE) © Adi Halali
