@@ -81,7 +81,7 @@ public class MinimalModel extends Graph<Integer>{
 	}
 
 	public ArrayList<LinkedList> MinimalModelFromScript(){
-		String s ="python3 cnf2lparse.py ex | ./wasp -n=2" ;
+		String s ="python3 cnf2lparse.py ex | ./wasp -n" ;
 
 		String[] cmd = {"/bin/sh", "-c", s};
 		String path = ".//alviano-wasp-f3fed39/build/release";
@@ -92,7 +92,7 @@ public class MinimalModel extends Graph<Integer>{
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 			String line = in.readLine();
-
+			
 			while(line!=null) {
 				if(line.length()>0 && line.charAt(0)=='{') {
 					if(line.equals("{}"))
@@ -112,6 +112,7 @@ public class MinimalModel extends Graph<Integer>{
 						list.add(lst);
 					}
 				}
+				System.out.println(line);
 				line = in.readLine();
 			}
 		}
