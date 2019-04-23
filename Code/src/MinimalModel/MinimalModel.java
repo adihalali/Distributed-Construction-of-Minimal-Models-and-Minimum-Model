@@ -81,7 +81,7 @@ public class MinimalModel extends Graph<Integer>{
 	}
 
 	public ArrayList<LinkedList> MinimalModelFromScript(){
-		String s ="python3 cnf2lparse.py ex | ./wasp -n" ;
+		String s ="python3 cnf2lparse.py ex | ./wasp -n=5" ;
 
 		String[] cmd = {"/bin/sh", "-c", s};
 		String path = ".//alviano-wasp-f3fed39/build/release";
@@ -112,7 +112,6 @@ public class MinimalModel extends Graph<Integer>{
 						list.add(lst);
 					}
 				}
-				System.out.println(line);
 				line = in.readLine();
 			}
 		}
