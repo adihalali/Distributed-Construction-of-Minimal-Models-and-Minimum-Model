@@ -100,6 +100,14 @@ public class SuperGraph {
 	public Graph<Integer> getSuperGraph() {
 		return this.super_graph;
 	}
+	
+	public void addSinkVertex() {
+		super_graph.addVertex(new Vertex<Integer>(-100));
+	}
+	
+	public void addSinkEdge(long id){
+		super_graph.addEdge(id, -100, 1, -1);
+	}
 
 	public void printGraph() {
 		System.out.println("********Super Graph**********");

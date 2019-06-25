@@ -2,6 +2,7 @@ package Rules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 	public Rule[] RulesArray ;
 	public int rulesNum;
 	Hashtable<Integer, LinkedList> varHT ;
-	static HashMap<Integer, Boolean> literalMap;// We will store the value of literals in this structure as we go along
+	private HashMap<Integer, Boolean> literalMap;// We will store the value of literals in this structure as we go along
 	public int dpCalls;
 	public ArrayList<Integer> minModel;
 	public int placedValueCounter;
@@ -40,6 +41,79 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		this.dpCalls = 0;
 		this.placedValueCounter = 0;
 	}
+
+	public RulesDataStructure(RulesDataStructure ds) {
+		rulesNum = ds.rulesNum;
+		SIZE = ds.SIZE;
+
+		RulesArray = ds.copyRulesDS();
+
+		varHT = ds.copyVarHT();
+		literalMap = ds.copyLiteralMap();
+
+		minModel = new ArrayList<>();
+		minModel.addAll(ds.minModel);
+		dpCalls = ds.dpCalls;
+		placedValueCounter = ds.placedValueCounter;
+	}
+
+	public HashMap<Integer, Boolean> getLiteralMap(){
+		return literalMap;
+	}
+	
+
+	public void setLiteralMap(HashMap<Integer, Boolean> hm) {
+		literalMap = new HashMap<Integer, Boolean>();
+		Set<Integer> keys = hm.keySet();
+		for(int key: keys) {
+			if(hm.get(key))
+				literalMap.put(key, true);
+			else
+				literalMap.put(key, false);
+		}
+	}
+
+	public Hashtable<Integer, LinkedList> getVarHT(){
+		return varHT;
+	}
+
+	public void setVarHT(Hashtable<Integer, LinkedList> ht){
+		varHT = new Hashtable<>();
+
+		Set<Integer> keys = ht.keySet();
+
+		for(int key: keys) {
+			LinkedList ls = new LinkedList();
+			Node n = ht.get(key).head;
+			while(n!=null) {
+				ls.addAtTail(n.var);
+				n = n.next;
+			}
+			varHT.put(key, ls);
+		}
+	}
+	
+	public Set<Integer> getLiterals(){
+		Set<Integer> set = new HashSet<Integer>();
+		for(int i=0; i<this.RulesArray.length; i++) {
+			if(this.RulesArray[i]!=null) {
+				Node n = this.RulesArray[i].body.head;
+				while(n!=null) {
+					set.add(n.var);
+					n=n.next;
+				}
+				n=this.RulesArray[i].head.head;
+				while(n!=null) {
+					set.add(n.var);
+					n=n.next;
+				}
+			}
+		}
+		return set;
+	}
+	
+
+
 
 	/**
 	 * Add methods
@@ -147,11 +221,12 @@ public class RulesDataStructure extends DavisPutnamHelper{
 				if(r != null){
 					if(r.getSize() == 1){
 						flag = true;
-						if(r.body.getSize() ==1)//body size is 1 and head size is 0s
+						if(r.body.getSize() ==1) //body size is 1 and head size is 0s
 							literalMap.put(this.RulesArray[i].body.head.var, false);
 
 						else//head size is 1 and body size is 0
 							literalMap.put(this.RulesArray[i].head.head.var, true);
+
 
 						updateRuleDS();
 					}
@@ -159,6 +234,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 			}
 		}while(flag);
 	}
+
 
 	//check if we return false if we put value inside the variable by the rules of logic
 	public boolean conflictWithAssignment(int var ,boolean val){
@@ -169,6 +245,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		Node n = l.head;
 		while(n!=null){
 			int sizeOfBody, sizeOfHead;
+			
 			sizeOfBody = this.RulesArray[n.var].body.getSize();
 			sizeOfHead = this.RulesArray[n.var].head.getSize();
 			if( (existInBody(var,n.var )) && sizeOfBody==1 && val &&sizeOfHead==0)
@@ -218,7 +295,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		}
 		return false;
 	}
-	
+
 	public boolean isTheoryPositive(){
 		for (int i = 0; i < this.RulesArray.length; i++){
 			if(this.RulesArray[i] != null){
@@ -239,11 +316,11 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		this.RulesArray[ruleNum].head.deleteList();
 		this.RulesArray[ruleNum] = null;
 	}
-	
+
 	private void deleteVar(int var, LinkedList l) {			//delete variable from rule
 		int index = 0;
 		Node n = l.head;
-		
+
 		while(n!=null){
 			if(n.var==var){
 				l.deleteAtIndex(index);
@@ -264,8 +341,8 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		updateHT(var, ruleNum);
 		deleteVar(var, this.RulesArray[ruleNum].head);
 	}
-	
-	
+
+
 	private void updateHTRule(LinkedList rule, int ruleNum) {
 		Node n = rule.head;
 		while(n != null){
@@ -281,18 +358,17 @@ public class RulesDataStructure extends DavisPutnamHelper{
 			updateHTRule(this.RulesArray[ruleNum].body, ruleNum);
 			updateHTRule(this.RulesArray[ruleNum].head, ruleNum);
 		}
-		
+
 		else
 			deleteVar(ruleNum, varHT.get(var));  	
 	}
-	
+
 	public void updateRuleDS(){
 		Set<Integer> keys = literalMap.keySet();
 
 		for(int key: keys){
-			if(literalMap.get(key))
+			if(literalMap.get(key) && !minModel.contains(key))
 				minModel.add(key);
-
 			ChangeDataStrucureByPlacingValueInVar(key, literalMap.get(key));
 			this.placedValueCounter++;
 		}
@@ -301,7 +377,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 
 	public void ChangeDataStrucureByPlacingValueInVar(int var , boolean value){
 		if(conflictWithAssignment(var, value)){
-			System.out.println("CONFLICT");
+			System.out.println(var + " CONFLICT");
 			return ;
 		}
 
@@ -325,7 +401,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		}
 		return;
 	}
-/******************************************************************************************************************/
+	/******************************************************************************************************************/
 
 	public LinkedList Ts(LinkedList s){
 		LinkedList Ts = new LinkedList();
@@ -476,7 +552,6 @@ public class RulesDataStructure extends DavisPutnamHelper{
 	/**return a string of the minimal model */
 	public String StringMinimalModel(){
 		String str= "[ ";
-
 		for(int var : this.minModel)
 			str+= "{"+var+"}" + " ";
 
@@ -596,7 +671,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 	}
 
 
-	
+
 
 
 	public void IntegrityConstraint(ArrayList<Integer> array){
@@ -748,39 +823,69 @@ public class RulesDataStructure extends DavisPutnamHelper{
 	//     	
 	//     }
 	//     
-	//     public Rule[] copyRulesDS()
-	//     {
-	//     	Rule[] rules = new Rule[rulesNum];
-	//     	for (int i = 0; i < rulesNum; i++)
-	//     	{
-	//     		rules[i]= new Rule();
-	// 		}
-	//     	for (int i = 0; i < RulesArray.length; i++) 
-	//     	{
-	// 			if(RulesArray[i]==null)
-	// 			{
-	// 				rules[i]=null;
-	// 			}
-	// 			else
-	// 			{
-	// 				Node nBody=RulesArray[i].body.head;
-	// 				Node nHead=RulesArray[i].head.head;
-	// 				rules[i].body=new LinkedList();
-	// 				rules[i].head= new LinkedList();
-	// 				while(nBody!=null)
-	// 				{
-	// 					rules[i].body.addAtTail(nBody.var);
-	// 					nBody=nBody.next;
-	// 				}
-	// 				while(nHead!=null)
-	// 				{
-	// 					rules[i].head.addAtTail(nHead.var);
-	// 					nHead=nHead.next;
-	// 				}
-	// 			}
-	// 		}
-	//     	return rules;
-	//     }
+	public Rule[] copyRulesDS()
+	{
+		Rule[] rules = new Rule[rulesNum];
+		for (int i = 0; i < rulesNum; i++)
+		{
+			rules[i]= new Rule();
+		}
+		for (int i = 0; i < RulesArray.length; i++) 
+		{
+			if(RulesArray[i]==null)
+			{
+				rules[i]=null;
+			}
+			else
+			{
+				Node nBody=RulesArray[i].body.head;
+				Node nHead=RulesArray[i].head.head;
+				rules[i].body=new LinkedList();
+				rules[i].head= new LinkedList();
+				while(nBody!=null)
+				{
+					rules[i].body.addAtTail(nBody.var);
+					nBody=nBody.next;
+				}
+				while(nHead!=null)
+				{
+					rules[i].head.addAtTail(nHead.var);
+					nHead=nHead.next;
+				}
+			}
+		}
+		return rules;
+	}
+
+	public HashMap<Integer, Boolean> copyLiteralMap(){ 
+		HashMap<Integer, Boolean>lm = new HashMap<Integer, Boolean>();
+		Set<Integer> keys = literalMap.keySet();
+		for(int key: keys) {
+			if(literalMap.get(key))
+				lm.put(key, true);
+			else
+				lm.put(key, false);
+		}
+		return lm;
+	}
+
+	public Hashtable<Integer,LinkedList> copyVarHT(){
+		Hashtable<Integer, LinkedList> ht = new Hashtable<>();
+
+		Set<Integer> keys = this.varHT.keySet();
+
+		for(int key: keys) {
+			LinkedList ls = new LinkedList();
+			Node n = this.varHT.get(key).head;
+			while(n!=null) {
+				ls.addAtTail(n.var);
+				n = n.next;
+			}
+			ht.put(key, ls);
+		}
+		return ht;
+	}
+
 	//     public void print(Rule[] array)
 	//     {
 	//

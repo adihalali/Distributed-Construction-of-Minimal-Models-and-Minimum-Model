@@ -1,5 +1,6 @@
 package Rules;
 
+
 public class LinkedList{
 	
 	public class Node{
@@ -109,8 +110,7 @@ public class LinkedList{
 	public boolean isEmpty(){
 		return numNodes == 0;
 	}
-
-
+	
 	/*
 	public static void main(String [] args)
 	{

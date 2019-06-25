@@ -1,17 +1,21 @@
 package Socket;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class Message implements Serializable{
 	
 	private String message, sender, receiver;
 	private boolean isLast;
+	private HashMap<Integer, Boolean> literalMap;
 	
-	public Message(String message, String reciver, String sender, boolean last) {
+	public Message(String message, String reciver, String sender, HashMap<Integer, Boolean> hm,  boolean last) {
 		this.message = message;
 		this.receiver = reciver;
 		this.sender = sender;
 		this.isLast = last;
+				
+		literalMap = hm;
 	}
 
 	public String getMessage() {
@@ -36,6 +40,14 @@ public class Message implements Serializable{
 
 	public void setReceiver(String receiver) {
 		this.receiver = receiver;
+	}
+	
+	public HashMap<Integer, Boolean> getLiteralMap() {
+		return this.literalMap;
+	}
+
+	public void setLiteralMap(HashMap<Integer, Boolean> lm) {
+		this.literalMap = lm;
 	}
 
 	public boolean isLast() {

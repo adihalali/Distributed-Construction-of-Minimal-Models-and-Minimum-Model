@@ -56,6 +56,7 @@ public class Graph<T>{
 
 		this.allEdges.add(edge);
 		vertex_s.addAdjacentVertex(edge, vertex_t);
+		vertex_t.addParentVertex(vertex_s);
 		if(!this.isDirected)
 			vertex_t.addAdjacentVertex(edge, vertex_s);
 	}
@@ -191,6 +192,10 @@ public class Graph<T>{
 		for(Edge<T> edge : getAllEdges()){
 			buffer.append(edge.getVertexS() + " -> " + edge.getVertexT() + " w: " + edge.getWeight() +" s size:"+ edge.getSSize());
 			buffer.append("\n");
+		}
+		
+		for(Vertex<T> ver: getAllVertex()) {
+			System.out.println(ver.getId()+": parent "+ver.getParentVertexes()+", child "+ver.getAdjacentVertexes());
 		}
 		return buffer.toString();
 	}
@@ -737,58 +742,63 @@ public class Graph<T>{
 	}
 
 	public static void main(String args[]){
-		//		Graph<Integer> graph = new Graph<>(true);
-		//		graph.addEdge(0, 1);
-		//		graph.addEdge(1, 2);
-		//		graph.addEdge(2, 0);
-		//		graph.addEdge(1, 3);
-		//		graph.addEdge(3, 4);
-		//		graph.addEdge(4, 19);
-		//		graph.addEdge(19, 5);
-		//		graph.addEdge(4, 5);
-		//		graph.addEdge(9, 5);
-		//		graph.addEdge(5, 1);
-		//		graph.addEdge(0, 19);
-		//		graph.addEdge(5, 5);
-		//		graph.addEdge(5, 3);
-		//		graph.addEdge(5, 6);
-		//		SuperGraph sg=new SuperGraph(graph);
-		//		System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
-		//		//System.out.println(sg.getSuperGraph());
-		//		sg.printGraph();
-		//		System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
-		//		StronglyConnectedComponent scc = new StronglyConnectedComponent();
-		//		List< Set<Vertex<Integer>>> result = scc.scc(graph);
-		//
-		//		//print the result
-		//		Set<Vertex<Integer>> vList= new HashSet<>();
-		//		int max=0;
-		//		for(Set<Vertex<Integer>> set: result ) {
-		//			if(set.size()>max) {
-		//				max=set.size();
-		//			}
-		//		}
-		//
-		//		for(Set<Vertex<Integer>> set: result ) {
-		//			if(set.size()==max) {
-		//				//				set.forEach(v->{
-		//				//					vList.add(v.getId());
-		//				//				});
-		//				vList.addAll(set);
-		//				break;
-		//			}
-		//
-		//		}
-		//		Graph<Integer> graphStrongestConnectedComponnent =copyGraph(vList,graph);
-		//		System.out.println("\n Origunal graph : \n"+graph+"\n\n ");		
-		//
-		//		System.out.println("Strongest CC : " +vList);
-		//		System.out.println("\n graph Strongest Connected Componnent: \n"+graphStrongestConnectedComponnent+"\n\n ");		
-		//		result.forEach(set -> {
-		//
-		//			set.forEach(v -> System.out.print(v.getId() + "-> "));
-		//			System.out.println();
-		//		});
+				Graph<Integer> graph = new Graph<>(true);
+				graph.addEdge(0, 1, 1, -1);
+				graph.addEdge(1, 2, 1, -1);
+				graph.addEdge(2, 0, 1, -1);
+				graph.addEdge(1, 3, 1, -1);
+				graph.addEdge(3, 4, 1, -1);
+				graph.addEdge(4, 19, 1, -1);
+				graph.addEdge(19, 5, 1, -1);
+				graph.addEdge(4, 5, 1, -1);
+				graph.addEdge(9, 5, 1, -1);
+				graph.addEdge(5, 1, 1, -1);
+				graph.addEdge(0, 19, 1, -1);
+				graph.addEdge(5, 5, 1, -1);
+				graph.addEdge(5, 3, 1, -1);
+				graph.addEdge(5, 6, 1, -1);
+				
+				System.out.println(graph);
+								
+				SuperGraph sg=new SuperGraph(graph);
+				System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+				//System.out.println(sg.getSuperGraph());
+				sg.printGraph();
+				System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+				StronglyConnectedComponent scc = new StronglyConnectedComponent();
+				List< Set<Vertex<Integer>>> result = scc.scc(graph);
+		
+				//print the result
+				Set<Vertex<Integer>> vList= new HashSet<>();
+				int max=0;
+				for(Set<Vertex<Integer>> set: result ) {
+					if(set.size()>max) {
+						max=set.size();
+					}
+				}
+		
+				for(Set<Vertex<Integer>> set: result ) {
+					if(set.size()==max) {
+						//				set.forEach(v->{
+						//					vList.add(v.getId());
+						//				});
+						vList.addAll(set);
+						break;
+					}
+		
+				}
+//				Graph<Integer> graphStrongestConnectedComponnent =copyGraph(vList,graph);
+				System.out.println("\n Origunal graph : \n"+graph+"\n\n ");		
+		
+				System.out.println("Strongest CC : " +vList);
+//				System.out.println("\n graph Strongest Connected Componnent: \n"+graphStrongestConnectedComponnent+"\n\n ");		
+				result.forEach(set -> {
+		
+					set.forEach(v -> System.out.print(v.getId() + "-> "));
+					System.out.println();
+				});
+				
+//				
 		Graph<Integer> graphMaxFlow = new Graph<>(true);
 		graphMaxFlow.addEdge(10, 3, 1, -1);
 		graphMaxFlow.addEdge(10, 4, 1, -1);

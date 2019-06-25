@@ -8,12 +8,13 @@ import Graph.Graph;
 import Graph.StronglyConnectedComponent;
 import Graph.SuperGraph;
 import Graph.Vertex;
-import Graph.VertexStructure;
+import MinimalModel.MinimalModel;
+import Rules.RulesDataStructure;
 import Socket.Client;
 
 public class TestGraph {
 	public static void main(String[] args) {
-		Graph<Integer> g = new Graph<>(true);
+//		Graph<Integer> g = new Graph<>(true);
 		//				g.addEdge(10, 3, 1, -1);
 		//				g.addEdge(10, 4, 1, -1);
 		//				g.addEdge(1, 10, 1, -1);
@@ -50,64 +51,78 @@ public class TestGraph {
 		//		g.addEdge(6, 7, 1, -1);
 
 
-		g.addEdge(2, 1, 1, -1);
-		g.addEdge(1, 5, 1, -1);
-		g.addEdge(1, 6, 1, -1);
-		g.addEdge(1, 4, 1, -1);
-		g.addEdge(5, 6, 1, -1);
-		g.addEdge(6, 5, 1, -1);
-	
+//		g.addEdge(2, 1, 1, -1);
+//		g.addEdge(1, 5, 1, -1);
+//		g.addEdge(1, 6, 1, -1);
+//		g.addEdge(1, 4, 1, -1);
+//		g.addEdge(5, 6, 1, -1);
+//		g.addEdge(6, 5, 1, -1);
+		
+		
+		
+		
+		MinimalModel m = new MinimalModel();
+		String path=".//CnfFile.txt";
+
+		m.readfile(path);
+//		m.ModuMinUsingDP();
+
+		Graph<Integer> g = m.createModelGraph();
 
 		// print the graph --> class: Graph
+		System.out.println("############################33");
 		System.out.println(g);
+		System.out.println("############################33");
 
 		StronglyConnectedComponent scc = new StronglyConnectedComponent();
 		List<Set<Vertex<Integer>>> result = scc.scc(g);
 		System.out.println("******\n"+result+"\n******\n");
-
 
 		System.out.println("-------------------------------------------------------------------------------------------");
 		SuperGraph super_graph = new SuperGraph(g);
 		super_graph.printGraph();
 		System.out.println("------------------------------");
 
-		ArrayList<VertexStructure> vs = new ArrayList<>();
-		ArrayList<Client> sourceVertex = new ArrayList<>();
-		ArrayList<String> finalVertex = new ArrayList<>();
+		ArrayList<Client<Integer>> sourceVertex = new ArrayList<>();
+		ArrayList<Vertex<Integer>> finalVertex = new ArrayList<>();
 
-		for(Vertex<Integer> v : super_graph.getSuperGraph().getAllVertex()) {
-			VertexStructure tmp = new VertexStructure(v, super_graph);
-			vs.add(tmp);
-
-			if(tmp.getChild().size()==0)
-				finalVertex.add(tmp.getId());
-		}
+//		for(Vertex<Integer> v : super_graph.getSuperGraph().getAllVertex()) {
+//			if(v.getAdjacentVertexes().size()==0)
+//				finalVertex.add(v.getNameID());
+//		}
 
 		// default values if not entered
 		int portNumber = 1500;
 		String serverAddress = "localhost";
-		ArrayList<Client> clients = new ArrayList<>();
+		ArrayList<Client<Integer>> clients = new ArrayList<>();
+		Vertex<Integer> sink = new Vertex<Integer>(-100);
+//		super_graph.addSinkVertex();
 
-		for(VertexStructure v: vs) {
-			Client client = new Client(serverAddress, portNumber, v.getId(), v.getParent(), v.getChild());
+		for(Vertex<Integer> v: super_graph.getSuperGraph().getAllVertex()) {
+			Client<Integer> client = new Client<>(serverAddress, portNumber, v.getId(), new Vertex<Integer>(v), m.getDS(), result);
 			if(!client.start())
 				return;
 			clients.add(client);
-			if(v.getParent().size()==0)
+			if(v.getParentVertexes().size()==0)
 				sourceVertex.add(client);
+			
+			else if(v.getAdjacentVertexes().size() == 0){
+				client.setLastVertex(true);
+				sink.addParentVertex(v);
+				finalVertex.add(v);
+			}
 		}
 
-		Client client = new Client(serverAddress, portNumber, "sink", finalVertex, new ArrayList<>());
+		Client<Integer> client = new Client<>(serverAddress, portNumber, sink.getId(), sink, m.getDS(), result);
 		if(!client.start())
 			return;
 		clients.add(client);
 
-		for(int i=0; i<2; i++) {
-			for(Client c: sourceVertex) {
+		for(int i=0; i<1; i++) {
+			for(Client<Integer> c: sourceVertex) {
 				c.sendMessage("* "+i+" *");
 			}
 		}
-
 
 		//		Client client = new Client(serverAddress, portNumber, userName);
 		// try to connect to the server and return if not connected

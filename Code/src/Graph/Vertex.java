@@ -10,11 +10,27 @@ public class Vertex<T> {
     private T data;
     private List<Edge<T>> edges = new ArrayList<>();
     private List<Vertex<T>> adjacentVertex = new ArrayList<>();
+    private List<Vertex<T>> parentVertex = new ArrayList<>();
     private Set<Vertex<Integer>> CCList;
     
     public Vertex(long id){
         this.id = id;
         this.nameID = "vertex"+id;
+    }
+    
+    public Vertex(Vertex<T> v) {
+    	id = v.id;
+    	nameID = v.nameID;
+    	data = v.data;
+    	
+    	edges = new ArrayList<>();
+    	edges.addAll(v.getEdges());
+    	adjacentVertex = new ArrayList<>();
+    	adjacentVertex.addAll(v.getAdjacentVertexes());
+    	parentVertex = new ArrayList<>();
+    	parentVertex.addAll(v.getParentVertexes());
+    	CCList = v.getCCList();
+    	CCList.addAll(v.getCCList());
     }
     
 
@@ -47,12 +63,20 @@ public class Vertex<T> {
     	this.adjacentVertex.add(v);
     }
     
+    public void addParentVertex(Vertex<T> v){
+    	this.parentVertex.add(v);
+    }
+    
     public String toString(){
         return String.valueOf(this.id);
     }
     
     public List<Vertex<T>> getAdjacentVertexes(){
         return this.adjacentVertex;
+    }
+    
+    public List<Vertex<T>> getParentVertexes(){
+        return this.parentVertex;
     }
     
     public List<Edge<T>> getEdges(){
