@@ -1,6 +1,7 @@
 package Rules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -52,7 +53,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		literalMap = ds.copyLiteralMap();
 
 		minModel = new ArrayList<>();
-		minModel.addAll(ds.minModel);
+//		minModel.addAll(ds.minModel);
 		dpCalls = ds.dpCalls;
 		placedValueCounter = ds.placedValueCounter;
 	}
@@ -211,7 +212,8 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		return l;
 	}
 
-	public void checkForUnits(){
+	public HashMap<Integer, Boolean> checkForUnits(){
+		HashMap<Integer, Boolean> hm = new HashMap<>();
 		boolean flag;
 		do{
 			Rule r;
@@ -221,18 +223,21 @@ public class RulesDataStructure extends DavisPutnamHelper{
 				if(r != null){
 					if(r.getSize() == 1){
 						flag = true;
-						if(r.body.getSize() ==1) //body size is 1 and head size is 0s
+						if(r.body.getSize() ==1) { //body size is 1 and head size is 0s
 							literalMap.put(this.RulesArray[i].body.head.var, false);
+							hm.put(this.RulesArray[i].body.head.var, false);
+						}
 
-						else//head size is 1 and body size is 0
+						else{//head size is 1 and body size is 0
 							literalMap.put(this.RulesArray[i].head.head.var, true);
-
-
+							hm.put(this.RulesArray[i].head.head.var, true);
+						}
 						updateRuleDS();
 					}
 				}
 			}
 		}while(flag);
+		return hm;
 	}
 
 
@@ -245,7 +250,6 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		Node n = l.head;
 		while(n!=null){
 			int sizeOfBody, sizeOfHead;
-			
 			sizeOfBody = this.RulesArray[n.var].body.getSize();
 			sizeOfHead = this.RulesArray[n.var].head.getSize();
 			if( (existInBody(var,n.var )) && sizeOfBody==1 && val &&sizeOfHead==0)
@@ -377,7 +381,7 @@ public class RulesDataStructure extends DavisPutnamHelper{
 
 	public void ChangeDataStrucureByPlacingValueInVar(int var , boolean value){
 		if(conflictWithAssignment(var, value)){
-			System.out.println(var + " CONFLICT");
+			System.out.println(var + " CONFLICT "+ value);
 			return ;
 		}
 
@@ -409,7 +413,6 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		Node Snode =s.head;
 		DefaultHashMap<Integer, Boolean> map = new DefaultHashMap<Integer, Boolean>(false);//on default we did not check the rules
 		boolean addToTs;
-
 		for (int i = 0; i < s.getSize() ; i++){
 			literalMap.put(Snode.var, false);//init all vars of s to falses
 			LinkedList l = varHT.get(Snode.var);
@@ -430,6 +433,45 @@ public class RulesDataStructure extends DavisPutnamHelper{
 			}
 			Snode= Snode.next;
 		}
+//		System.out.println("######");
+//		Ts.printList();
+//		printValueOfVariables();
+//		System.out.println("######");
+		return Ts;
+	}
+	
+	public LinkedList TsWASP(LinkedList s){
+		LinkedList Ts = new LinkedList();
+
+		Node Snode =s.head;
+		DefaultHashMap<Integer, Boolean> map = new DefaultHashMap<Integer, Boolean>(false);//on default we did not check the rules
+		boolean addToTs;
+
+		for (int i = 0; i < s.getSize() ; i++){
+			literalMap.put(Snode.var, false);//init all vars of s to falses
+			LinkedList l = varHT.get(Snode.var);
+			
+			if(l!=null){
+				Node n =l.head; 
+				while(n!=null){
+					if(!map.get(n.var)){//if we did not check this rule, lets check
+						map.put(n.var, true);
+						addToTs = true;
+//						if(!allExistInList(n.var, s))
+//							addToTs=false;
+						if(addToTs)
+							Ts.addAtTail(n.var);
+					}
+					n=n.next;
+				}
+			}
+			Snode= Snode.next;
+		}
+//		System.out.println("######");
+//		Ts.printList();
+//		printValueOfVariables();
+//		printRulesArray();
+//		System.out.println("######");
 		return Ts;
 	}
 
@@ -541,7 +583,17 @@ public class RulesDataStructure extends DavisPutnamHelper{
 		}
 	}
 
-
+	public HashMap<Integer, Boolean> putMinModelInLiteral(ArrayList<String[]> minmodel){
+		HashMap<Integer, Boolean> hm = new HashMap<>();
+		for(String[] str: minmodel) {
+			for(int i=0; i<str.length; i++) {
+//				System.out.println(Arrays.toString(str));
+				literalMap.put(Integer.parseInt(str[i]), true);
+				hm.put(Integer.parseInt(str[i]), true);
+			}
+		}
+		return hm;
+	}
 
 
 

@@ -195,7 +195,7 @@ public class Graph<T>{
 		}
 		
 		for(Vertex<T> ver: getAllVertex()) {
-			System.out.println(ver.getId()+": parent "+ver.getParentVertexes()+", child "+ver.getAdjacentVertexes());
+			buffer.append("vertex "+ver.getId()+": parent "+ver.getParentVertexes()+", child "+ver.getAdjacentVertexes()+"\n");
 		}
 		return buffer.toString();
 	}
@@ -500,6 +500,7 @@ public class Graph<T>{
 	public static LinkedList sourceOfGraph(Graph<Integer>  graph){
 		StronglyConnectedComponent scc = new StronglyConnectedComponent();
 		List<Set<Vertex<Integer>>> result = scc.scc(graph);
+//		System.out.println(result);
 		LinkedList s = new LinkedList();
 		if(result.isEmpty())
 			return s;

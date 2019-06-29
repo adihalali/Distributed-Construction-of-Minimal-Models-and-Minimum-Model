@@ -110,9 +110,8 @@ public class SuperGraph {
 	}
 
 	public void printGraph() {
-		System.out.println("********Super Graph**********");
-		System.out.println(super_graph);
-		System.out.println();
+//		System.out.println(super_graph);
+//		System.out.println();
 		for(Vertex<Integer> v : super_graph.getAllVertex()) {
 			System.out.print("Vertex: "+v.getId());
 			
@@ -124,18 +123,18 @@ public class SuperGraph {
 			System.out.println("Parent are: "+ getParent(v)+" Child are: "+getChildren(v));
 			System.out.println();
 		}
-		System.out.println("********Super Graph ID**********");
-		for(Vertex<Integer> v : super_graph.getAllVertex()) {
-			System.out.print("Vertex: "+v.getNameID());
-			
-			System.out.print(":=> Vertex of cc are: ");
-			for(Vertex<Integer> vertexInCC: v.getCCList() ) {
-				System.out.print(vertexInCC.getNameID()+"-> ");
-				
-			}
-			System.out.println("Parent are: "+ getParentID(v)+" Child are: "+getChildrenID(v));
-			System.out.println();
-		}
+//		System.out.println("********Super Graph ID**********");
+//		for(Vertex<Integer> v : super_graph.getAllVertex()) {
+//			System.out.print("Vertex: "+v.getNameID());
+//			
+//			System.out.print(":=> Vertex of cc are: ");
+//			for(Vertex<Integer> vertexInCC: v.getCCList() ) {
+//				System.out.print(vertexInCC.getNameID()+"-> ");
+//				
+//			}
+//			System.out.println("Parent are: "+ getParentID(v)+" Child are: "+getChildrenID(v));
+//			System.out.println();
+//		}
 		
 		
 	}

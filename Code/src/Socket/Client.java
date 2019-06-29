@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import Graph.Vertex;
+import MinimalModel.ConstructMinimalModels;
 import Rules.LinkedList;
 import Rules.RulesDataStructure;
 
@@ -38,6 +39,9 @@ public class Client <T> {
 
 	HashTable htc = new HashTable();
 
+	/***************/
+	ConstructMinimalModels mm_DP;
+
 	private List<Set<Vertex<Integer>>> SCC;
 	private HashMap<Integer, Boolean> literalMap;
 	private Hashtable<Integer, LinkedList> varHT;
@@ -49,11 +53,7 @@ public class Client <T> {
 	public void setUsername(String username) { this.username = username; }
 
 	/*
-	 *  Constructor to set below things
-	 *  server: the server address
-	 *  port: the port number
-	 *  username: the username
-	 *  vs: the vertex structure
+	 *  Constructor
 	 */
 	public Client(String server, int port, long id, Vertex<T> v, RulesDataStructure ds, List<Set<Vertex<Integer>>> scc) {
 		this.server = server;
@@ -68,14 +68,12 @@ public class Client <T> {
 			for(Vertex<Integer> vertex: v.getCCList()) 
 				this.vertexCC.addAtTail((int)vertex.getId());
 
-		literalMap = DS.copyLiteralMap();
-		varHT = DS.copyVarHT();
+		literalMap = DS.getLiteralMap();
+		varHT = DS.getVarHT();
 
 		this.SCC = new ArrayList<>();
 		for(int i=0; i<scc.size(); i++)
 			this.SCC.add(scc.get(i));
-
-
 	}
 
 	public void setLastVertex(Boolean last) {
@@ -86,14 +84,12 @@ public class Client <T> {
 	 * To start the chat
 	 */
 	public boolean start() {
-
 		try {	// try to connect to the server
 			this.socket = new Socket(this.server, this.port);
 		} catch(Exception ec) {	// exception handler if it failed
 			display("Error connectiong to server:" + ec);
 			return false;
 		}
-
 		/* Creating both Data Stream */
 		try{
 			this.sInput  = new ObjectInputStream(this.socket.getInputStream());
@@ -128,107 +124,23 @@ public class Client <T> {
 		System.out.println(msg);
 	}
 
-	public void constructMinimalModel() {
-		System.out.println("~~~~~~~~~~~~~~~~CONSTRUCT MINIMAL MODEL~~~~~~~~~~~~~~~~~~~");
-		System.out.println("Vertex "+username);
-		System.out.print("CC List: ");
-		this.vertexCC.printList();
-		System.out.println();
-		this.DS.setVarHT(varHT);
-
-		int num = 15;
-		while(DS.SIZE!=0) {
-			for(int i=0; i<this.SCC.size(); i++) {
-				Set<Vertex<Integer>> tmp_scc= this.SCC.get(i);
-				int counter = 0;
-				for(Vertex<Integer> v: tmp_scc) {
-					if(literalMap.containsKey((int)v.getId()))
-						counter++;
-				}
-				if(counter==tmp_scc.size())
-					this.SCC.remove(i);
-			}
-			//			this.vertexCC.printList();
-			DS.checkForUnits();
-
-
-			this.DS.setLiteralMap(literalMap);
-			//			System.out.println("^^^^^^^^^^");
-//						printLiteralMap();
-			//			System.out.println("^^^^^^^^^^");
-			//			DS.checkForUnits();
-			DS.updateRuleDS();
-			//					DS.checkForUnitsByVar(ID);
-			//			this.DS.setLiteralMap(literalMap);
-			//					DS.checkForUnitsByVar(ID);
-			//			System.out.println("^^^");
-						printLiteralMap();
-			//			DS.printRulesArray();
-			//			DS.printHashTable();
-			//			System.out.println("^^^");
-			//		}
-			//		if(child.size()>0)
-			//				DS.checkForUnits();
-			//		DS.checkForUnitsByVar(ID);
-			//			this.DS.printRulesArray();
-
-
-			System.out.println("size: " + DS.SIZE+"  ,  ");
-			vertexCC.printList();
-			LinkedList Ts=DS.Ts(this.vertexCC);
-			System.out.println("Ts size: " + Ts.getSize());
-			Ts.printList();
-			if(!DS.FindMinimalModelForTs(Ts)){
-				System.out.println("UNSAT");
-				//				System.out.println("The amount of time we put value in a variable is : " + DS.counter);
-			}
-			//			DS.printValueOfVariables();
-			HashMap<Integer, Boolean> tmp =	this.DS.copyLiteralMap();
-			Set<Integer> keys = tmp.keySet();
-			for(int key: keys) {
-				if(tmp.get(key))
-					literalMap.put(key, true);
-				else
-					literalMap.put(key, false);
-			}
-			DS.updateRuleDS();
-			DS.printRulesArray();
-			if(!this.lastVertex)
-				break;
-			else {
-				int count = 0;
-				Boolean update = false;
-				for(int j=0; j<this.SCC.size(); j++) {
-					for(Vertex<Integer> v: this.SCC.get(j)) {
-						if(DS.getLiterals().contains((int)v.getId()))
-							count++;
-					}
-					if(DS.getLiterals().size()==count) {
-						update = true;
-						break;
-					}	
-				}
-				
-				if(update) {
-					for(int k: DS.getLiterals()) {
-						literalMap.put(k, true);
-					}
-					DS.setLiteralMap(literalMap);
-					DS.updateRuleDS();
-				}
-
-				num--;
-			}
-
-		}
-		//		System.out.println("@@@@@@@@@@@@@@@@@@@@");
-		//		System.out.println("size: " + DS.SIZE);
-		//		DS.printRulesArray();
-		//		printLiteralMap();
-		//		System.out.println("@@@@@@@@@@@@@@@@@@@@");		
-		System.out.println("#####"+DS.StringMinimalModel()+"#####");
-		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~~~~~~~~~~~~~");		
+	public void findMinimalModels() {
+		DS.setVarHT(varHT);
+//		DS.checkForUnits();
+		this.DS.setLiteralMap(literalMap);
+//		DS.updateRuleDS();
+//		System.out.println("##########");
+//		printLiteralMap();
+//		System.out.println("##########");
+		
+		mm_DP = new ConstructMinimalModels(username, this.DS, this.vertexCC, this.SCC, this.lastVertex);
+//		mm_DP.minimalModelsUsingDP();
+		mm_DP.ModuminUsingWASP();
+		
+		sendMessage(mm_DP);
 	}
+
+
 
 	public void printLiteralMap() {
 		Set<Integer> keys = literalMap.keySet();
@@ -244,11 +156,12 @@ public class Client <T> {
 	/*
 	 * To send a message to the server
 	 */
-	public void sendMessage(String msg) {
-		constructMinimalModel();
-
-		if(this.child.size()==0) {		
-			Message newMsg = new Message(msg+"->"+username, "vertex-100", username, this.literalMap, false);
+	public void sendMessage(ConstructMinimalModels msg) {
+		if(this.child.size()==0) {	
+			long endTime;
+			endTime = System.nanoTime();
+			System.out.println("end time: "+endTime);
+			Message newMsg = new Message("vertex-100", username, msg.getLiteralMap(), msg.getMinimalModels());
 			try {
 				this.sOutput.writeObject(newMsg);
 			}catch(IOException e) {
@@ -258,7 +171,7 @@ public class Client <T> {
 			return;
 		}
 		for(Vertex<T> r :this.child) {
-			Message newMsg = new Message(msg+"->"+username, r.getNameID(), username, this.literalMap, false);
+			Message newMsg = new Message(r.getNameID(), username, msg.getLiteralMap(), msg.getMinimalModels());
 			try {
 				this.sOutput.writeObject(newMsg);
 			}catch(IOException e) {
@@ -291,16 +204,21 @@ public class Client <T> {
 	 **/
 	class ListenFromServer extends Thread {
 		public synchronized void run() {
+			int num=0;
 			while(true) {
+				
 				try {
 					// read the message form the input datastream
 					Message msg = (Message) sInput.readObject();
 					if(!username.equals("vertex-100"))
 						htc.put(msg);
 					else {
-						System.out.println(DS.StringMinimalModel());
-						System.out.println(msg.getMessage() + "=>"+username+" is last");
-						break;
+						num++;
+						/***run time checking*/
+						long startTime,endTime,totalTime;
+								endTime = System.nanoTime();
+								System.out.println("msg num: "+num+", time: "+endTime);
+						printModels(msg.getModels());
 					}
 				}
 				catch(IOException e) {
@@ -310,64 +228,38 @@ public class Client <T> {
 				catch(ClassNotFoundException e2) { }
 			}
 		}
+
+		public void printModels(ArrayList<Integer> models) {
+			String str= "[ ";
+			for(int var : models)
+				str+= "{"+var+"}" + " ";
+
+			str+= "]" + "\r\n" +" |MM| = "+ models.size();
+			System.out.println(str);
+		}
 	}
 
 	class ListenToServer extends Thread{
 		public synchronized void run() {
 			while(true) {
 				if(htc.size()==parent.size() && !username.equals("vertex-100")) {
-					String msg = "";
-					for(String pid: htc.getHashedID()) {
-						String str = null;
-						while(str==null) {
-							Message tmp = htc.getValue(pid);
-							str = tmp.getMessage();
+					for(String pid: htc.getHashedID()) 
+						updateLiteralMap(htc.getValue(pid));
 
-							Set<Integer> keys = tmp.getLiteralMap().keySet();
-							for(int key: keys) {
-								if(tmp.getLiteralMap().get(key))
-									literalMap.put(key, true);
-								else
-									literalMap.put(key, false);
-							}
-							//							literalMap.putAll(tmp.getLiteralMap());
-							//							hm.putAll(tmp.getLiteralMap());
-							//							System.out.println("-*-*-*-*-*-*-THE VALUE TABLE--------");
-							//							Set<Integer> keys = tmp.getLiteralMap().keySet();
-							//							for(int key: keys){
-							//								System.out.print("Value of " + key +" is ");
-							//								if(tmp.getLiteralMap().get(key))
-							//									System.out.println("TRUE");
-							//								else
-							//									System.out.println("FALSE");
-							//							}
-							//							System.out.println("-*-*-*-*-*-*-*-----------------------");
-						}
-						msg += str;
-					}
-					sendMessage(msg);
-				}
-				else if(htc.size()==parent.size() && username.equals("vertex-100")) {
-					String msg = "";
-					for(String pid: htc.getHashedID()) {
-						String str = null;
-						while(str==null) {
-							Message tmp = htc.getValue(pid);
-							str = tmp.getMessage();
-						}
-
-						msg += str;
-					}
-					sendMessage(msg);
-					break;
+					findMinimalModels();
 				}
 				else {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {}
+					try { Thread.sleep(1);} 
+					catch (InterruptedException e) {}
 				}
-
 			}
+		}
+
+		public void updateLiteralMap(Message msg) {
+			Set<Integer> keys = msg.getLiteralMap().keySet();
+			for(int key: keys) 
+				literalMap.put(key, msg.getLiteralMap().get(key));
+
 		}
 	}
 }

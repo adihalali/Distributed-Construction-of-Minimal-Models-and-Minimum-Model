@@ -1,29 +1,21 @@
 package Socket;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Message implements Serializable{
 	
-	private String message, sender, receiver;
-	private boolean isLast;
+	private String sender, receiver;
 	private HashMap<Integer, Boolean> literalMap;
+	private ArrayList<Integer> models;
 	
-	public Message(String message, String reciver, String sender, HashMap<Integer, Boolean> hm,  boolean last) {
-		this.message = message;
+	public Message(String reciver, String sender, HashMap<Integer, Boolean> hm, ArrayList<Integer> m) {
 		this.receiver = reciver;
 		this.sender = sender;
-		this.isLast = last;
+		this.models = m;
 				
 		literalMap = hm;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String msg) {
-		this.message = msg;
 	}
 
 	public String getSender() {
@@ -50,12 +42,12 @@ public class Message implements Serializable{
 		this.literalMap = lm;
 	}
 
-	public boolean isLast() {
-		return isLast;
+	public ArrayList<Integer> getModels() {
+		return this.models;
 	}
 
-	public void setLast(boolean isLast) {
-		this.isLast = isLast;
+	public void setModels(ArrayList<Integer> m) {
+		this.models = m;
 	}
 	
 	
